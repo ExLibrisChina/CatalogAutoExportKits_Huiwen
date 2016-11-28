@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"  xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd" 
+     default-autowire="byName"
+    >
+
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:setting.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="oracle.jdbc.OracleDriver" />
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@${jdbc.ip}:${jdbc.port}:${jdbc.service_name}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+        <property name="maxPoolSize" value="6" />
+		<property name="acquireIncrement" value="2" />
+		<property name="initialPoolSize" value="2" />
+		<property name="minPoolSize" value="2" />
+		<property name="maxIdleTime" value="300" />
+		<property name="idleConnectionTestPeriod" value="60" />
+		<property name="maxStatements" value="500" />
+		<property name="numHelperThreads" value="10" />
+	</bean>
+	
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" ></bean>
+    <bean id="ftpConf" class="com.proquest.apac.summontool.FtpConf" >
+    	<property name="fileDir" value="${ftp.file.dir}"></property>
+		<property name="summonId" value="${ftp.summon.id}"></property>
+		<property name="ftpCNAddress" value="${ftp.cn.address}"></property>
+		<property name="ftpCNUsername" value="${ftp.cn.username}"></property>
+		<property name="ftpCNPassword" value="${ftp.cn.password}"></property>
+		<property name="ftpUSAddress" value="${ftp.us.address}"></property>
+		<property name="ftpUSUsername" value="${ftp.us.username}"></property>
+		<property name="ftpUSPassword" value="${ftp.us.password}"></property>
+		<property name="marcLocation" value="${marc.location_field}"></property>
+		<property name="marcCheckMarc" value="${marc.check_marc}"></property>
+		<property name="marcCNFields" value="${marc.check_cn_fields}"></property>
+		<property name="marcUSFields" value="${marc.check_us_fields}"></property>
+    </bean>
+    <bean id="marcDao" class="com.proquest.apac.summontool.impl.huiwen.HuiwenMarcDaoImpl" >
+    	<property name="marcUseFlag" value="${marc.marc_use_flag}"></property>
+    	<property name="dbUserPrefix" value="${libsys.username_prefix}"></property>
+    </bean>
+</beans>

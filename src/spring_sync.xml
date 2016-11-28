@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"  xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd" 
+     default-autowire="byName"
+    >
+
+	<import resource="spring_base.xml"/>
+	
+	<bean id="marcExportRunner" class="com.proquest.apac.summontool.MarcExportRunner" />
+	<bean id="fileUploader" class="com.proquest.apac.summontool.FtpFileUploader" />
+	
+	<!-- 定期执行的任务  -->
+	<bean id="marcExportJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="marcExportRunner" />
+	    <property name="targetMethod" value="runExport"/> 
+	    <property name="concurrent" value="false" /> 
+	</bean> 
+	
+	<bean id="marcExportJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="marcExportJob"/>
+		<property name="cronExpression" value="0 0 1 * * ?"></property> 
+    </bean>
+
+	<bean id="fileUploaderJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+	    <property name="targetObject" ref="fileUploader" />
+	    <property name="targetMethod" value="uploadFiles"/> 
+	    <property name="concurrent" value="false" /> 
+	</bean> 
+	
+	<bean id="fileUploaderJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="fileUploaderJob"/>
+		<property name="cronExpression"><value>0 0 0/6 * * ?</value></property> 
+    </bean>
+       
+    <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+           <list>
+                <ref bean="marcExportJobTrigger"/>
+                <ref bean="fileUploaderJobTrigger"/>
+            </list>
+        </property>
+		<property name="dataSource"><null></null></property>
+        <property name="configLocation" value="classpath:quartz.properties"/> 
+    </bean>
+    
+</beans>
